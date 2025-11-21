@@ -15,10 +15,10 @@ const SHAPE_SIZE = 50;
 const COLLECTOR_SIZE = 80;
 const COLLECTOR_Y = screenHeight - COLLECTOR_SIZE - 40;
 
-const FALL_SPEED = 6;
+const FALL_SPEED = 8
 const ACCEL_SENSITIVITY = 55; 
-const SPAWN_INTERVAL = 1300;
-const SWITCH_INTERVAL = 3000;
+const SPAWN_INTERVAL = 1000;
+const SWITCH_INTERVAL = 4500;
 
 const SHAPES = {
   cube: { shadow: "square", color: "#ff9ef6" },
@@ -72,22 +72,34 @@ export default function App() {
     return () => sub.remove();
   }, [gameOver]);
 
-
   useEffect(() => {
     if (gameOver) return;
     const interval = setInterval(() => {
-      const t = TYPES[Math.floor(Math.random() * TYPES.length)];
+      const gap = screenWidth / 2;
+      const leftX = Math.random() * (gap - SHAPE_SIZE);
+      const rightX = gap + Math.random() * (screenWidth - gap - SHAPE_SIZE);
+      
+      const isCubeLeft = Math.random() < 0.5;
 
-      setFalling((prev) => [
-        ...prev,
+      const newShapes = [
         {
           id: Date.now(),
-          type: t,
-          x: Math.random() * (screenWidth - SHAPE_SIZE),
+          type: isCubeLeft ? 'cube' : 'sphere',
+          x: leftX,
           y: -SHAPE_SIZE,
-          color: SHAPES[t].color,
+          color: SHAPES[isCubeLeft ? 'cube' : 'sphere'].color,
         },
-      ]);
+        {
+          id: Date.now() + 1,
+          type: isCubeLeft ? 'sphere' : 'cube',
+          x: rightX,
+          y: -SHAPE_SIZE,
+          color: SHAPES[isCubeLeft ? 'sphere' : 'cube'].color,
+        },
+      ];
+
+      setFalling((prev) => [...prev, ...newShapes]);
+
     }, SPAWN_INTERVAL);
 
     return () => clearInterval(interval);
